@@ -1,13 +1,14 @@
-package com.project.ecommerce.exceptions;
+package com.project.ecommerce.exceptionhandler;
 
 import com.project.ecommerce.dto.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
+
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiResponse<String>> handleException(Exception e) {
         e.printStackTrace();
@@ -15,4 +16,5 @@ public class GlobalExceptionHandler {
                 new ApiResponse(false, e.getMessage(), null)
         );
     }
+    
 }
