@@ -6,6 +6,7 @@ import com.project.ecommerce.dto.LoginRequest;
 import com.project.ecommerce.dto.RegisterRequest;
 import com.project.ecommerce.entity.Role;
 import com.project.ecommerce.entity.User;
+import com.project.ecommerce.exception.UserAlreadyExistsException;
 import com.project.ecommerce.repository.UserRepository;
 import com.project.ecommerce.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -35,8 +36,7 @@ public class AuthService {
                 .findByEmail(request.getEmail())
                 .isPresent()) {
 
-            throw new RuntimeException(
-                    "User already exists");
+            throw new UserAlreadyExistsException("User already exists with this email");
         }
 
         User user = new User();
