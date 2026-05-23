@@ -95,5 +95,21 @@ public class ProductService {
                 .category(product.getCategory().getName())
                 .build();
     }
+    public List<ProductResponse> getAllProductsByCategoryId(Long categoryId) {
+        if(! categoryRepository.findById(categoryId).isPresent()) {
+            throw new ResourceNotFoundException("Category not found with id: " + categoryId);
+        }
 
+        List<Product> products = productRepository.findByCategoryId(categoryId);
+        return products.stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    public List<ProductResponse> getProductsByProductName(String productName) {
+        List<Product> products = productRepository.findByName(productName);
+        return products.stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
 }

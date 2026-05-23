@@ -58,6 +58,30 @@ public class ProductController {
         );
     }
 
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<ApiResponse<List<ProductResponse>>> getAllProductsByCategoryId(@PathVariable Long categoryId){
+
+        return ResponseEntity.ok(
+                new ApiResponse<>(
+                        true,
+                        "Success",
+                        service.getAllProductsByCategoryId(categoryId)
+                )
+        );
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<List<ProductResponse>>> getProductsByName(@RequestParam String productName){
+
+        return ResponseEntity.ok(
+                new ApiResponse<>(
+                        true,
+                        "Success",
+                        service.getProductsByProductName(productName)
+                )
+        );
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<String>> deleteProductById(@PathVariable Long id){
 
