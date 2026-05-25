@@ -23,7 +23,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponse<String>> handleResourceNotFoundException(ResourceNotFoundException e) {
-        log.error(e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                 new ApiResponse<>(false, e.getMessage(), null)
         );
@@ -31,7 +30,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CategoryAlreadyExitsException.class)
     public ResponseEntity<ApiResponse<String>> handleCategoryAlreadyExitsException(CategoryAlreadyExitsException e) {
-        log.error(e.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(
                 new ApiResponse<>(false, e.getMessage(), null)
         );
@@ -39,7 +37,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiResponse<String>> handleException(Exception e) {
-        log.error(e.getMessage());
+        log.error("internal server errror: {}", e.getMessage(), e);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 new ApiResponse(false, e.getMessage(), null)
         );

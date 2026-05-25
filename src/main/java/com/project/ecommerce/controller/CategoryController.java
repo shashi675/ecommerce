@@ -6,12 +6,14 @@ import com.project.ecommerce.dto.CategoryResponse;
 import com.project.ecommerce.service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/categories")
 @RequiredArgsConstructor
@@ -24,6 +26,8 @@ public class CategoryController {
             @RequestBody
             @Valid
             CategoryRequest request){
+
+        log.info("Create Category Request: {}", request.getName());
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -39,6 +43,8 @@ public class CategoryController {
     @GetMapping
     public ResponseEntity<ApiResponse<List<CategoryResponse>>> getAllCategories(){
 
+        log.info("Get All Categories request");
+
         return ResponseEntity.ok(
                 new ApiResponse<>(
                         true,
@@ -51,10 +57,11 @@ public class CategoryController {
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<CategoryResponse>> getCategoryById(@PathVariable Long id){
 
+        log.info("Get Category Request: {}", id);
         return ResponseEntity.ok(
                 new ApiResponse<>(
                         true,
-                        "All Categories found",
+                        "Category found",
                         service.getCategoryById(id)
                 )
         );
@@ -63,6 +70,7 @@ public class CategoryController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<CategoryResponse>> deleteCategory(@PathVariable Long id){
 
+        log.info("Delete Category Request: {}", id);
         service.deleteCategory(id);
 
         return ResponseEntity.ok(

@@ -13,11 +13,13 @@ import com.project.ecommerce.repository.CartRepository;
 import com.project.ecommerce.repository.ProductRepository;
 import com.project.ecommerce.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CartService {
@@ -38,6 +40,7 @@ public class CartService {
         Cart cart = cartRepository
                 .findByUser(user)
                 .orElseGet(()->{
+                    log.info("Create new cart for user: {}", user.getId());
                     Cart c = new Cart();
                     c.setUser(user);
                     return cartRepository.save(c);
@@ -46,9 +49,10 @@ public class CartService {
 
         Product product = productRepository
                 .findById(request.getProductId())
-                .orElseThrow(
-                        () -> new ResourceNotFoundException("Product not found")
-                );
+                .orElseThrow(() -> {
+                    log.info("Product not found for productId: {}", request.getProductId());
+                    return new ResourceNotFoundException("Product not found");
+                });
 
 
         CartItem cartItem = cartItemRepository
@@ -69,14 +73,18 @@ public class CartService {
         }
 
         cartItemRepository.save(cartItem);
+        log.info("Added ToCart for user: {}", user.getId());
     }
 
     public CartResponse getCart() {
+        User user = securityUtil.getCurrentUser();
+
         Cart cart = cartRepository
-                .findByUser(securityUtil.getCurrentUser())
+                .findByUser(user)
                 .orElse(null);
 
         if(cart == null) {
+            log.error("Cart not found for user: {}", user.getId());
             throw new ResourceNotFoundException("Cart not found");
         }
 
@@ -88,28 +96,33 @@ public class CartService {
 
         Cart cart = cartRepository
                 .findByUser(user)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Cart not found"
-                        ));
+                .orElseThrow(() -> {
+                    log.error("Cart not found for user: {}", user.getId());
+                    return new ResourceNotFoundException("Cart not found");
+                });
 
         CartItem cartItem = cartItemRepository
                 .findByCartAndProductId(cart, productId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Item not found in cart"
-                        ));
+                .orElseThrow(() -> {
+                    log.error("CartItem not found for user: {}", user.getId());
+                    return new ResourceNotFoundException("Item not found in cart");
+                });
 
         cartItemRepository.delete(cartItem);
+        log.info("Product {} has been deleted from cart for user {}", productId, user.getId());
     }
 
     public void clearCart() {
         User user = securityUtil.getCurrentUser();
         Cart cart = cartRepository
                 .findByUser(user)
-                .orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
+                .orElseThrow(() -> {
+                    log.error("Cart not found for user: {}", user.getId());
+                    return new ResourceNotFoundException("Cart not found");
+                });
 
         cartRepository.delete(cart);
+        log.info("Cart has been deleted for user: {}", user.getId());
     }
 
     private CartResponse mapToResponse(Cart cart) {

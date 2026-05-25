@@ -8,10 +8,12 @@ import com.project.ecommerce.exception.ResourceNotFoundException;
 import com.project.ecommerce.repository.CategoryRepository;
 import com.project.ecommerce.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProductService {
@@ -25,11 +27,12 @@ public class ProductService {
 
         Category category = categoryRepository
                 .findById(request.getCategoryId())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Category not found with id: "
-                                + request.getCategoryId()
-                        )
-                );
+                .orElseThrow(() -> {
+                    log.error("Category Not Found with id: {}", request.getCategoryId());
+                    return new ResourceNotFoundException("Category of the product not found");
+                });
+
+        log.info("Creating new product with category: {}", category.getName());
 
         Product product = new Product();
         product.setName(request.getName());
@@ -38,6 +41,8 @@ public class ProductService {
         product.setStock(request.getStock());
         product.setCategory(category);
         Product savedProduct = productRepository.save(product);
+
+        log.info("Product saved with id: {}", savedProduct.getId());
 
         return mapToResponse(savedProduct);
     }
@@ -57,12 +62,10 @@ public class ProductService {
 
         Product product = productRepository
                         .findById(id)
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Product not found with id: "
-                                                + id
-                                )
-                        );
+                        .orElseThrow(() -> {
+                            log.error("Product Not Found with id: {}", id);
+                            return new ResourceNotFoundException("Product not found");
+                        });
 
         return mapToResponse(product);
     }
@@ -72,14 +75,13 @@ public class ProductService {
 
         Product product = productRepository
                         .findById(id)
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Product not found with id: "
-                                                + id
-                                )
-                        );
+                        .orElseThrow(() -> {
+                            log.error("Product Not Found with id: {}", id);
+                            return new ResourceNotFoundException("Product not found");
+                        });
 
         productRepository.delete(product);
+        log.info("Product deleted with id: {}", id);
     }
 
 
@@ -97,9 +99,11 @@ public class ProductService {
     }
     public List<ProductResponse> getAllProductsByCategoryId(Long categoryId) {
         if(! categoryRepository.findById(categoryId).isPresent()) {
-            throw new ResourceNotFoundException("Category not found with id: " + categoryId);
+            log.error("Category Not Found with id: {}", categoryId);
+            throw new ResourceNotFoundException("Category not found");
         }
 
+        log.info("Getting all products by categoryId: {}:", categoryId);
         List<Product> products = productRepository.findByCategoryId(categoryId);
         return products.stream()
                 .map(this::mapToResponse)
@@ -108,6 +112,7 @@ public class ProductService {
 
     public List<ProductResponse> getProductsByProductName(String productName) {
         List<Product> products = productRepository.findByName(productName);
+        log.info("{} products found with name {}", products.size(), productName);
         return products.stream()
                 .map(this::mapToResponse)
                 .toList();

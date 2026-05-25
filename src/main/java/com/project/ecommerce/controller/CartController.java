@@ -5,10 +5,12 @@ import com.project.ecommerce.dto.ApiResponse;
 import com.project.ecommerce.dto.CartResponse;
 import com.project.ecommerce.service.CartService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/cart")
 @RequiredArgsConstructor
@@ -19,6 +21,8 @@ public class CartController {
     @PostMapping
     public ResponseEntity<ApiResponse<String>> addToCart(
             @RequestBody AddToCartRequest request){
+
+        log.info("Add ToCart Request for productId: {}", request.getProductId());
 
         cartService.addToCart(request);
 
@@ -35,6 +39,8 @@ public class CartController {
     @GetMapping
     public ResponseEntity<ApiResponse<CartResponse>> getCart(){
 
+        log.info("Get Cart Request");
+
         return ResponseEntity.status(HttpStatus.OK)
                 .body(
                         new ApiResponse<CartResponse>(
@@ -47,6 +53,8 @@ public class CartController {
 
     @DeleteMapping
     public ResponseEntity<ApiResponse<String>> deleteProductFromCart(@RequestParam Long productId){
+
+        log.info("Delete Product Request: {}", productId);
 
         cartService.deleteProductFromCart(productId);
 
@@ -62,6 +70,7 @@ public class CartController {
 
     @DeleteMapping("/empty-cart")
     public ResponseEntity<ApiResponse<String>> emptyCart(){
+        log.info("Empty Cart Request");
         cartService.clearCart();
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
                 .body(
